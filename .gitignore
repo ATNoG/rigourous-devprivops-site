@@ -1,0 +1,10 @@
+.vscode/
+
+**/*.old
+**/*.tmp
+tmp/
+
+**/*_templ.go
+static/css/style.css
+
+devprivops-dashboard
