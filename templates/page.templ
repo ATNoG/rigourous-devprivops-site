@@ -1,0 +1,14 @@
+package templates
+
+templ Page(title string) {
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{title}</title>
+        <link rel="stylesheet" href="/static/css/style.css"/>
+    </head>
+    <body class="page">
+        @Hello()
+    </body>
+    </html>
+}

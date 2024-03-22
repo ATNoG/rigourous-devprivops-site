@@ -1,7 +1,7 @@
 {pkgs ? import <nixpkgs> {}}:
 
 let
-  templ = builtins.getFlake("github:a-h/templ");
+  templ = builtins.getFlake("github:a-h/templ/1e176a01b3723b169a1d79ab63db39c74a1e49f8");
 in
 pkgs.mkShell {
 	nativeBuildInputs = with pkgs; [

@@ -19,8 +19,8 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 func main() {
 	e := echo.New()
 
-	e.Static("/static", "/static")
-	e.GET("/", handlers.Hello)
+	e.Static("/static", "static")
+	e.GET("/", handlers.Page)
 
 	e.Logger.Fatal(e.Start("localhost:8080"))
 }

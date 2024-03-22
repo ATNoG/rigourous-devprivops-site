@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+    .page {
+        @apply bg-zinc-700
+    }
+
+    .heading {
+        @apply text-emerald-500 text-3xl font-semibold;
+    }
+}
