@@ -2,12 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+    @apply text-slate-300
+}
+
 @layer components {
     .page {
         @apply bg-zinc-700
     }
 
+    .card {
+        @apply rounded-md border-solid border-lime-600 border-4 p-10
+    }
+
     .heading {
-        @apply text-emerald-500 text-3xl font-semibold;
+        @apply text-emerald-500 font-semibold;
     }
 }

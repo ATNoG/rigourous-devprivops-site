@@ -4,7 +4,7 @@ templ:
 
 .Phony: css
 css:
-	tailwindcss -i static/css/style.css -o static/css/style.css --minify
+	tailwindcss -i static/css/source.css -o static/css/style.css --minify
 
 .Phony: clean
 clean:
