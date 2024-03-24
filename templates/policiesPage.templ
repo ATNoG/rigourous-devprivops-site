@@ -1,0 +1,40 @@
+package templates
+
+import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+import "fmt"
+
+templ PoliciesPage(regulation *data.Regulation) {
+    <h1 class="heading text-3xl">
+        Compliance with {regulation.Name}
+    </h1>
+
+    <h2 class="heading text-2xl"> 
+        Consistency report 
+    </h2>
+
+    for _, result := range regulation.ConsistencyResults {
+        @Policy(result)
+    }
+
+    <h2 class="heading text-2xl"> 
+        Policy compliance report 
+    </h2>
+
+    for _, result := range regulation.PolicyResults {
+        @Policy(result)
+    }
+}
+
+templ Policy (result *data.RuleResult) {
+    <div class="card">
+        <h3 class="text-xl text-slate-300">
+            {result.Name}
+        </h3>
+
+        <ol>
+        for _, e := range result.Results {
+            <li> {fmt.Sprintf("%s", e)} </li>
+        }
+        </ol>
+    </div>
+}

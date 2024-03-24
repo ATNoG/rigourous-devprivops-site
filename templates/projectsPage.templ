@@ -14,8 +14,10 @@ templ ProjectsPage(reports ...*data.Report) {
 
 templ Project(report *data.Report) {
     <div class="card">
-        <h3 class="text-xl text-slate-300">
-            {report.Project}
-        </h3>
+        <a href={templ.URL(report.Project)}>
+            <h3 class="text-xl text-slate-300">
+                {report.Project}
+            </h3>
+        </a>
     </div>
 }

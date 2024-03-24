@@ -12,3 +12,16 @@ templ Page[T any](title string, pageContent func(...T) templ.Component, params .
     </body>
     </html>
 }
+
+templ PageSingle[T any](title string, pageContent func(T) templ.Component, param T) {
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>{title}</title>
+        <link rel="stylesheet" href="/static/css/style.css"/>
+    </head>
+    <body class="page">
+        @pageContent(param)
+    </body>
+    </html>
+}
