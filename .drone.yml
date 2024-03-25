@@ -11,6 +11,6 @@ steps:
     tags: latest
     dockerfile: Dockerfile
     insecure: true
-#trigger:
-#  event:
-#    - push
+trigger:
+  event:
+    - push

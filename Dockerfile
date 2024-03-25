@@ -5,9 +5,10 @@ COPY . /src/
 WORKDIR /src/ 
 
 # Build the application
-RUN ls
 RUN go mod tidy
 RUN go install github.com/a-h/templ/cmd/templ@latest
+RUN templ generate
+RUN tailwindcss -i static/css/source.css -o static/css/style.css --minify
 RUN go build
 
 # Cleanup
