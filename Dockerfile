@@ -7,6 +7,7 @@ WORKDIR /src/
 # Build the application
 RUN ls
 RUN go mod tidy
+RUN go install github.com/a-h/templ/cmd/templ@latest
 RUN go build
 
 # Cleanup
