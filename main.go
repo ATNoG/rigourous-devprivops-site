@@ -1,20 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Joao-Felisberto/devprivops-dashboard/data"
 	"github.com/Joao-Felisberto/devprivops-dashboard/handlers"
 	"github.com/labstack/echo"
 )
-
-/*
-type Template struct {
-	templates *template.Template
-}
-
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
-*/
 
 func main() {
 	e := echo.New()
@@ -22,24 +14,28 @@ func main() {
 	store := data.Store{
 		Data: []*data.Report{
 			{
-				Branch:  "a",
-				Commit:  "a",
-				Project: "a",
+				Branch:  "brancha",
+				Commit:  "commita",
+				Project: "projecta",
 				Regulations: []*data.Regulation{
 					{
-						Name: "Reg 1",
+						Name: "Reg1",
 						ConsistencyResults: []*data.RuleResult{
 							{
-								Name: "Con 1",
+								Name: "Con1",
 								Results: []map[string]interface{}{
 									{
 										"a": 1,
 										"b": 2,
 									},
+									{
+										"a": 10,
+										"b": 20,
+									},
 								},
 							},
 							{
-								Name: "Con 2",
+								Name: "Con2",
 								Results: []map[string]interface{}{
 									{
 										"c": 3,
@@ -49,7 +45,7 @@ func main() {
 						},
 						PolicyResults: []*data.RuleResult{
 							{
-								Name: "Pol 1",
+								Name: "Pol1",
 								Results: []map[string]interface{}{
 									{
 										"a": 'a',
@@ -61,10 +57,10 @@ func main() {
 						},
 					},
 					{
-						Name: "Reg 2",
+						Name: "Reg2",
 						ConsistencyResults: []*data.RuleResult{
 							{
-								Name: "Con 2",
+								Name: "Con2",
 								Results: []map[string]interface{}{
 									{
 										"Something": 1,
@@ -77,15 +73,31 @@ func main() {
 				},
 			},
 			{
-				Branch:      "b",
-				Commit:      "b",
-				Project:     "b",
+				Branch:      "branchb",
+				Commit:      "commitb",
+				Project:     "projectb",
 				Regulations: []*data.Regulation{},
 			},
 		},
 	}
 
 	e.Static("/static", "static")
+
+	for _, f := range []string{
+		"android-chrome-192x192.png",
+		"android-chrome-512x512.png",
+		"apple-touch-icon.png",
+		"favicon-16x16.png",
+		"favicon-32x32.png",
+		"favicon.ico",
+	} {
+		e.Static(
+			fmt.Sprintf("/%s", f),
+			"static",
+		)
+	}
+	e.Static("site.manifest", "/static/site.manifest")
+
 	e.GET("/", handlers.ProjectsPage(&store))
 	e.GET("/:proj", handlers.RegulationsPage(&store))
 	e.GET("/:proj/:reg", handlers.PoliciesPage(&store))

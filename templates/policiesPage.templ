@@ -2,6 +2,7 @@ package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
+import "strconv"
 
 templ PoliciesPage(regulation *data.Regulation) {
     <h1 class="heading text-3xl">
@@ -33,8 +34,30 @@ templ Policy (result *data.RuleResult) {
 
         <ol>
         for _, e := range result.Results {
-            <li> {fmt.Sprintf("%s", e)} </li>
+            <!--<li>{fmt.Sprintf("%s", e)}</li>-->
+            <li>@Violations(e)</li>
         }
         </ol>
     </div>
+}
+
+templ Violations(violations map[string]interface{}) {
+    <table>
+    for k, v := range violations {
+        <tr>
+        <td>{k}</td><td>{display(v)}</td>
+        </tr>
+    }
+    </table>
+}
+
+func display(v interface{}) string {
+    switch t := v.(type) {
+        case string:
+            return t
+        case int:
+            return strconv.Itoa(t)
+        default:
+            return fmt.Sprintf("%v", v)
+    }
 }

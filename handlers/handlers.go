@@ -27,10 +27,12 @@ func RegulationsPage(store *data.Store) func(ctx echo.Context) error {
 		return tpl.PageSingle[*data.Report]("Report Page", tpl.RegulationsPage, report).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
+
 func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
 		regName := ctx.Param("reg")
+
 		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
 		regulation := util.Filter(report.Regulations, func(r *data.Regulation) bool { return r.Name == regName })[0]
 
