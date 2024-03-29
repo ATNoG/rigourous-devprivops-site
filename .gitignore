@@ -7,4 +7,6 @@ tmp/
 **/*_templ.go
 static/css/style.css
 
+db.json
+
 devprivops-dashboard

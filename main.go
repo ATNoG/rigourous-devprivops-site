@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/Joao-Felisberto/devprivops-dashboard/data"
 	"github.com/Joao-Felisberto/devprivops-dashboard/handlers"
@@ -11,74 +13,10 @@ import (
 func main() {
 	e := echo.New()
 
-	store := data.Store{
-		Data: []*data.Report{
-			{
-				Branch:  "brancha",
-				Commit:  "commita",
-				Project: "projecta",
-				Regulations: []*data.Regulation{
-					{
-						Name: "Reg1",
-						ConsistencyResults: []*data.RuleResult{
-							{
-								Name: "Con1",
-								Results: []map[string]interface{}{
-									{
-										"a": 1,
-										"b": 2,
-									},
-									{
-										"a": 10,
-										"b": 20,
-									},
-								},
-							},
-							{
-								Name: "Con2",
-								Results: []map[string]interface{}{
-									{
-										"c": 3,
-									},
-								},
-							},
-						},
-						PolicyResults: []*data.RuleResult{
-							{
-								Name: "Pol1",
-								Results: []map[string]interface{}{
-									{
-										"a": 'a',
-										"b": 'b',
-										"c": 'c',
-									},
-								},
-							},
-						},
-					},
-					{
-						Name: "Reg2",
-						ConsistencyResults: []*data.RuleResult{
-							{
-								Name: "Con2",
-								Results: []map[string]interface{}{
-									{
-										"Something": 1,
-										"Another":   999,
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-			{
-				Branch:      "branchb",
-				Commit:      "commitb",
-				Project:     "projectb",
-				Regulations: []*data.Regulation{},
-			},
-		},
+	store, err := data.FromFile("./db.json")
+	if err != nil {
+		log.Fatalf("Error opening database: %s", err)
+		os.Exit(1)
 	}
 
 	e.Static("/static", "static")
@@ -98,11 +36,13 @@ func main() {
 	}
 	e.Static("site.manifest", "/static/site.manifest")
 
-	e.GET("/", handlers.ProjectsPage(&store))
-	e.GET("/:proj", handlers.RegulationsPage(&store))
-	e.GET("/:proj/:reg", handlers.PoliciesPage(&store))
+	e.GET("/", handlers.ProjectsPage(store))
+	e.GET("/:proj", handlers.RegulationsPage(store))
+	e.GET("/:proj/:reg", handlers.PoliciesPage(store))
 
-	e.POST("/report", handlers.PostReport(&store))
+	e.POST("/report", handlers.PostReport(store))
 
 	e.Logger.Fatal(e.Start("localhost:8080"))
+
+	store.ToFile("db.json")
 }

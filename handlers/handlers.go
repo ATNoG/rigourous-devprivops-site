@@ -116,6 +116,8 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 			return err
 		}
 
+		store.Data = append(store.Data, &report)
+
 		return tpl.Hello(string(final)).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
