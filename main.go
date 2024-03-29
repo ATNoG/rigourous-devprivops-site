@@ -102,5 +102,7 @@ func main() {
 	e.GET("/:proj", handlers.RegulationsPage(&store))
 	e.GET("/:proj/:reg", handlers.PoliciesPage(&store))
 
+	e.POST("/report", handlers.PostReport(&store))
+
 	e.Logger.Fatal(e.Start("localhost:8080"))
 }

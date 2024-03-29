@@ -1,19 +1,19 @@
 package data
 
 type Report struct {
-	Branch      string
-	Commit      string
-	Project     string
-	Regulations []*Regulation
+	Branch      string        `json:"branch"`
+	Commit      string        `json:"commit"`
+	Project     string        `json:"project"`
+	Regulations []*Regulation `json:"regulations"`
 }
 
 type Regulation struct {
-	Name               string
-	ConsistencyResults []*RuleResult
-	PolicyResults      []*RuleResult
+	Name               string        `json:"name"`
+	ConsistencyResults []*RuleResult `json:"consistency"`
+	PolicyResults      []*RuleResult `json:"policies"`
 }
 
 type RuleResult struct {
-	Name    string
-	Results []map[string]interface{}
+	Name    string                   `json:"name"`
+	Results []map[string]interface{} `json:"results"`
 }

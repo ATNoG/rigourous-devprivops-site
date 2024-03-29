@@ -1,5 +1,8 @@
 package templates
 
-templ Hello() {
+templ Hello(data string) {
     <h1 class="heading">Hello World</h1>
+    <p>
+        {data}
+    </p>
 }
