@@ -47,6 +47,7 @@ func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 func PostReport(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		// var raw []byte
+		// rawEncoded, err := io.ReadAll(ctx.Request().Body)
 		raw, err := io.ReadAll(ctx.Request().Body)
 		if err != nil {
 			return err
@@ -55,6 +56,7 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		iface := map[string]interface{}{}
 		err = json.Unmarshal(raw, &iface)
 		if err != nil {
+			fmt.Printf("2: %s\n", string(raw))
 			return err
 		}
 
@@ -119,6 +121,7 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		}
 
 		store.Data = append(store.Data, &report)
+		fmt.Printf("%s\n", string(final))
 
 		return tpl.Hello(string(final)).Render(ctx.Request().Context(), ctx.Response())
 	}
