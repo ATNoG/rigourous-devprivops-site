@@ -3,6 +3,7 @@ package templates
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
 import "strconv"
+import "slices"
 
 templ PoliciesPage(regulation *data.Regulation) {
     <h1 class="heading text-3xl">
@@ -26,29 +27,78 @@ templ PoliciesPage(regulation *data.Regulation) {
     }
 }
 
-templ Policy (result *data.RuleResult) {
+templ Policy(result *data.RuleResult) {
     <div class="card">
         <h3 class="text-xl text-slate-300">
             {result.Name}
         </h3>
+        
+        <p>
+        {result.MappingMessage}
+        </p>
 
-        <ol>
-        for _, e := range result.Results {
-            <!--<li>{fmt.Sprintf("%s", e)}</li>-->
-            <li>@Violations(e)</li>
-        }
-        </ol>
+        @ViolationTable(&result.Results)
     </div>
 }
 
-templ Violations(violations map[string]interface{}) {
+templ ViolationTable(violations *[]map[string]interface{}) {
     <table>
-    for k, v := range violations {
+        <thead> 
         <tr>
-        <td>{k}</td><td>{display(v)}</td>
+        for _, k := range getVars(violations) {
+            <th>{k}</th>
+        }
         </tr>
-    }
+        </thead>
+        <tbody>
+        for _, ln := range toTable(violations) {
+            <tr>
+            for _, e := range ln {
+                <td>{e}</td>
+            }
+            </tr>
+        }
+        </tbody>
     </table>
+}
+
+func getVars(violations *[]map[string]interface{}) []string {
+    if len(*violations) == 0 {
+        return []string {}
+    }
+    first := (*violations)[0]
+
+    keys := []string {}
+    for k, _ := range first {
+        keys = append(keys, display(k))
+    }
+
+    slices.Sort(keys)
+    return keys
+}
+
+func toTable(violations *[]map[string]interface{}) [][]string {
+    if len(*violations) == 0 {
+        return [][]string {}
+    }
+    first := (*violations)[0]
+
+    keys := []string {}
+    res := [][]string {}
+    for k, _ := range first {
+        keys = append(keys, display(k))
+    }
+    slices.Sort(keys)
+
+    for _, violation := range *violations {
+        line := []string {}
+        for _, k := range keys {
+            line = append(line, display(violation[k]))
+        }
+        res = append(res, line)
+    }
+
+    return res
 }
 
 func display(v interface{}) string {
@@ -57,6 +107,8 @@ func display(v interface{}) string {
             return t
         case int:
             return strconv.Itoa(t)
+        case float64:
+            return strconv.FormatFloat(t, 'f', -1, 64)
         default:
             return fmt.Sprintf("%v", v)
     }

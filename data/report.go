@@ -14,6 +14,7 @@ type Regulation struct {
 }
 
 type RuleResult struct {
-	Name    string
-	Results []map[string]interface{}
+	Name           string
+	MappingMessage string
+	Results        []map[string]interface{}
 }

@@ -86,13 +86,15 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 
 				if policy["is consistency"].(bool) {
 					consistencyRes = append(consistencyRes, &data.RuleResult{
-						Name:    polName,
-						Results: violations,
+						Name:           polName,
+						Results:        violations,
+						MappingMessage: policy["mapping message"].(string),
 					})
 				} else {
 					policyRes = append(policyRes, &data.RuleResult{
-						Name:    polName,
-						Results: violations,
+						Name:           polName,
+						Results:        violations,
+						MappingMessage: policy["mapping message"].(string),
 					})
 				}
 			}
