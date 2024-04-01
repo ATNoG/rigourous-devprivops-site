@@ -8,14 +8,16 @@ templ RegulationsPage(report *data.Report) {
         Report for {report.Project}
     </h1>
 
+    <div class="grid-container">
     for _, regulation := range report.Regulations {
         @Regulation(report.Project, regulation)
     }
+    </div>
 }
 
 templ Regulation (project string, regulation *data.Regulation) {
     <div class="card">
-        <a href={templ.URL(fmt.Sprintf("/%s/%s", project, regulation.Name))}>
+        <a href={templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation.Name))}>
             <h3 class="text-xl text-slate-300">
                 {regulation.Name}
             </h3>

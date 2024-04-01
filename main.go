@@ -37,8 +37,8 @@ func main() {
 	e.Static("site.manifest", "/static/site.manifest")
 
 	e.GET("/", handlers.ProjectsPage(store))
-	e.GET("/:proj", handlers.RegulationsPage(store))
-	e.GET("/:proj/:reg", handlers.PoliciesPage(store))
+	e.GET("/view/:proj", handlers.RegulationsPage(store))
+	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
 
 	e.POST("/report", handlers.PostReport(store))
 
