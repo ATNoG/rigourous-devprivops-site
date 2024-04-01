@@ -2,7 +2,7 @@ package data
 
 type Report struct {
 	Branch      string
-	Commit      string
+	Time        int64
 	Project     string
 	Regulations []*Regulation
 }

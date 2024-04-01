@@ -2,6 +2,10 @@ package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
+import "strconv"
+import "time"
+import "sort"
+import "slices"
 
 templ ProjectsPage(reports ...*data.Report) {
     <h1 class="heading text-3xl">
@@ -9,7 +13,7 @@ templ ProjectsPage(reports ...*data.Report) {
     </h1>
 
     <div class="grid-container">
-        for _, report := range reports {
+        for _, report := range sortReports(reports) {
             @Project(report)
         }
     </div>
@@ -23,8 +27,32 @@ templ Project(report *data.Report) {
             </h3>
 
             <p>
-            {report.Branch}:{report.Commit}
+            {report.Branch}:{fmt.Sprint(report.Time)}
             </p>
         </a>
     </div>
+}
+
+func sortReports(reports []*data.Report) []*data.Report {
+    sort.Slice(reports, func(i, j int) bool {return reports[i].Time > reports[j].Time})
+
+    unique := []*data.Report {}    
+    visited := []string {}
+    for _, e := range reports {
+        if !slices.Contains(visited, e.Project) {
+            unique = append(unique, e)
+            visited = append(visited, e.Project)
+        } 
+    }
+
+    return unique
+}
+
+func formatTime(timestampStr string) string {
+    timestamp, err := strconv.ParseInt(timestampStr, 10, 64)
+    if err != nil {
+        // TODO: better error handling
+        panic(err)
+    }
+    return time.Unix(timestamp, 0).Format("02/01/2006 03:04:05")
 }

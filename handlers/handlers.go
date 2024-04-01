@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-dashboard/data"
 	tpl "github.com/Joao-Felisberto/devprivops-dashboard/templates"
@@ -72,7 +73,11 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		}
 
 		branch := iface["branch"].(string)
-		commit := iface["commit"].(string)
+		time, err := strconv.ParseInt(iface["time"].(string), 10, 64)
+		if err != nil {
+			// TODO: better error handling
+			panic(err)
+		}
 		project := iface["project"].(string)
 
 		regulationsRaw := iface["policies"].(map[string]interface{})
@@ -122,7 +127,7 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 
 		report := data.Report{
 			Branch:      branch,
-			Commit:      commit,
+			Time:        time,
 			Project:     project,
 			Regulations: regulationsList,
 		}
