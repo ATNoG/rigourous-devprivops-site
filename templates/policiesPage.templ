@@ -4,9 +4,10 @@ import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
 import "strconv"
 import "slices"
+import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 
 templ PoliciesPage(regulation *data.Regulation) {
-    <h1 class="heading text-3xl">
+    <h1 id={util.ToHTMLID(regulation.Name)} class="heading text-3xl">
         Compliance with {regulation.Name}
     </h1>
 
@@ -29,7 +30,7 @@ templ PoliciesPage(regulation *data.Regulation) {
 
 templ Policy(result *data.RuleResult) {
     <div class="card">
-        <h3 class="text-xl text-emerald-500">
+        <h3 id={util.ToHTMLID(result.Name)} class="text-xl text-emerald-500">
             {result.Name}
         </h3>
         

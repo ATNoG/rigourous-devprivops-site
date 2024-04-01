@@ -1,0 +1,11 @@
+package templates
+
+import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+
+templ PrintPage(report *data.Report) {
+    @RegulationsPage(report, true)
+
+    for _, r := range report.Regulations {
+        @PoliciesPage(r)
+    }
+}

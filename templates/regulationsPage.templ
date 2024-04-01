@@ -1,26 +1,56 @@
 package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 import "fmt"
+import "strconv"
 
-templ RegulationsPage(report *data.Report) {
+templ RegulationsPage(report *data.Report, localUrls bool) {
     <h1 class="heading text-3xl">
         Report for {report.Project}
     </h1>
 
     <div class="grid-container">
     for _, regulation := range report.Regulations {
-        @Regulation(report.Project, regulation)
+        @Regulation(report.Project, regulation, localUrls)
     }
     </div>
 }
 
-templ Regulation (project string, regulation *data.Regulation) {
+templ Regulation (project string, regulation *data.Regulation, localUrls bool) {
     <div class="card">
-        <a href={templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation.Name))}>
+        <!--<a href={templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation.Name))}>-->
+        <a href={makeURL(project, regulation.Name, localUrls)}>
             <h3 class="text-xl text-slate-300">
                 {regulation.Name}
             </h3>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    Consistency: {strconv.Itoa(getAccomplishedPolicies(regulation.ConsistencyResults))}/{strconv.Itoa(len(regulation.ConsistencyResults))}
+                </div>
+                <div>
+                    Policies: {strconv.Itoa(getAccomplishedPolicies(regulation.PolicyResults))}/{strconv.Itoa(len(regulation.PolicyResults))}
+                </div>
+            </div>
         </a>
     </div>
+}
+
+func makeURL(project string, regulation string, local bool) templ.SafeURL {
+    if local {
+        id := util.ToHTMLID(regulation)
+        return templ.URL(fmt.Sprintf("#%s", id))
+    } else { 
+        return templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation))
+    }
+}
+
+func getAccomplishedPolicies(results []*data.RuleResult) int {
+    return util.Sum(util.Map(results, 
+        func(res *data.RuleResult) int {
+            return util.Btoi(len(res.Results) == 0)
+        }),
+    )
+
 }

@@ -40,6 +40,8 @@ func main() {
 	e.GET("/view/:proj", handlers.RegulationsPage(store))
 	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
 
+	e.GET("/print/:proj", handlers.PrintPage(store))
+
 	e.POST("/report", handlers.PostReport(store))
 
 	e.Logger.Fatal(e.Start("localhost:8080"))
