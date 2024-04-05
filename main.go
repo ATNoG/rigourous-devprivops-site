@@ -39,6 +39,7 @@ func main() {
 	e.GET("/", handlers.ProjectsPage(store))
 	e.GET("/view/:proj", handlers.RegulationsPage(store))
 	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
+	e.GET("/us/:proj", handlers.UserStoriesPage(store))
 
 	e.GET("/print/:proj", handlers.PrintPage(store))
 

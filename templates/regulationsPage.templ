@@ -10,6 +10,11 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
         Report for {report.Project}
     </h1>
 
+    if !localUrls {
+    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/print/%s", report.Project))}>Printable Page</a>
+    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/us/%s", report.Project))}>User Stories Page</a>
+    }
+
     <div class="grid-container">
     for _, regulation := range report.Regulations {
         @Regulation(report.Project, regulation, localUrls)

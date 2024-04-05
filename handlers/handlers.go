@@ -46,6 +46,16 @@ func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 	}
 }
 
+func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
+	return func(ctx echo.Context) error {
+		project := ctx.Param("proj")
+
+		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+
+		return tpl.Page[*data.UserStory]("User Stories Page", tpl.RequirementsPage, report.UserStories...).Render(ctx.Request().Context(), ctx.Response())
+	}
+}
+
 func PrintPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
