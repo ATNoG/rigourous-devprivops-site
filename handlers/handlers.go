@@ -72,6 +72,12 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 			return err
 		}
 
+		m, err := json.MarshalIndent(iface, "", "  ")
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(m))
+
 		branch := iface["branch"].(string)
 		time, err := strconv.ParseInt(iface["time"].(string), 10, 64)
 		if err != nil {
@@ -125,11 +131,39 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 			})
 		}
 
+		userStoriesRaw := iface["user stories"].(map[string]interface{})
+		userStoryList := []*data.UserStory{}
+
+		// user stories->X
+		for usName, usRaw := range userStoriesRaw {
+			us := usRaw.(map[string]interface{})
+
+			isMisuseCase := us["is misuse case"].(bool)
+			requirementsRaw := us["requirements"].([]interface{})
+
+			requirements := util.Map(requirementsRaw, func(r interface{}) data.Requirement {
+				req := r.(map[string]interface{})
+				ress := util.Map(req["results"].([]interface{}), func(rr interface{}) map[string]interface{} { return rr.(map[string]interface{}) })
+				return data.Requirement{
+					Title:       req["title"].(string),
+					Description: req["description"].(string),
+					Results:     ress,
+				}
+			})
+
+			userStoryList = append(userStoryList, &data.UserStory{
+				UseCase:      usName,
+				IsMisuseCase: isMisuseCase,
+				Requirements: requirements,
+			})
+		}
+
 		report := data.Report{
 			Branch:      branch,
 			Time:        time,
 			Project:     project,
 			Regulations: regulationsList,
+			UserStories: userStoryList,
 		}
 		final, err := json.MarshalIndent(report, "", " ")
 		if err != nil {
