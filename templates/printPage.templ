@@ -6,6 +6,6 @@ templ PrintPage(report *data.Report) {
     @RegulationsPage(report, true)
 
     for _, r := range report.Regulations {
-        @PoliciesPage(r)
+        @PoliciesPage(report.Project, r)
     }
 }

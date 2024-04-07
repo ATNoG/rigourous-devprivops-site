@@ -6,7 +6,7 @@ import "strconv"
 import "slices"
 import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 
-templ PoliciesPage(regulation *data.Regulation) {
+templ PoliciesPage(project string, regulation *data.Regulation) {
     <h1 id={util.ToHTMLID(regulation.Name)} class="heading text-3xl">
         Compliance with {regulation.Name}
     </h1>
@@ -14,9 +14,17 @@ templ PoliciesPage(regulation *data.Regulation) {
     <h2 class="heading text-2xl"> 
         Consistency report 
     </h2>
-
+    
+    <!--TODO: UNSAFE!! Fix-->
+    <div 
+        hx-get={fmt.Sprintf("/data/%s/regulations.%s?headingLevel=3", project, regulation.Name)}
+        hx-trigger="load"
+        hx-swap="outerHTML"
+    >
+    </div>
+    
     for _, result := range regulation.ConsistencyResults {
-        @Policy(result)
+        @Policy(project, regulation.Name, result)
     }
 
     <h2 class="heading text-2xl"> 
@@ -24,15 +32,23 @@ templ PoliciesPage(regulation *data.Regulation) {
     </h2>
 
     for _, result := range regulation.PolicyResults {
-        @Policy(result)
+        @Policy(project, regulation.Name, result)
     }
 }
 
-templ Policy(result *data.RuleResult) {
+templ Policy(project string, regulation string, result *data.RuleResult) {
     <div class="card">
         <h3 id={util.ToHTMLID(result.Name)} class="text-xl text-emerald-500">
             {result.Name}
         </h3>
+        
+        <!--TODO: UNSAFE!! Fix-->
+        <div 
+            hx-get={fmt.Sprintf("/data/%s/regulations.%s.%s?headingLevel=3", project, regulation, result.Name)}
+            hx-trigger="load"
+            hx-swap="outerHTML"
+        >
+        </div>
         
         <p class="py-5">
         {result.MappingMessage}

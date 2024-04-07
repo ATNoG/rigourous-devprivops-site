@@ -21,9 +21,9 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
     }
     </div>
 
-    <!--UNSAFE!! Fix-->
+    <!--TODO: UNSAFE!! Fix-->
     <div 
-        hx-get={fmt.Sprintf("/data/%s/hello.test?headingLevel=3", report.Project)}
+        hx-get={fmt.Sprintf("/data/%s/regulations?headingLevel=3", report.Project)}
         hx-trigger="load"
         hx-swap="outerHTML"
     >
@@ -72,5 +72,4 @@ func getAccomplishedPolicies(results []*data.RuleResult) int {
             return util.Btoi(len(res.Results) == 0)
         }),
     )
-
 }

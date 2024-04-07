@@ -42,7 +42,7 @@ func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
 		regulation := util.Filter(report.Regulations, func(r *data.Regulation) bool { return r.Name == regName })[0]
 
-		return tpl.PageSingle[*data.Regulation]("Report Page", tpl.PoliciesPage, regulation).Render(ctx.Request().Context(), ctx.Response())
+		return tpl.PageSingle[*data.Regulation]("Report Page", func(r *data.Regulation) templ.Component { return tpl.PoliciesPage(project, r) }, regulation).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 
@@ -76,7 +76,6 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 			return tpl.PageSingle[*data.ExtraData]("Extra Data", func(d *data.ExtraData) templ.Component { return tpl.ExtraData(d, headingLevel) }, dataList[0]).Render(ctx.Request().Context(), ctx.Response())
 		}
 
-		fmt.Println("Could not find extra data")
 		return nil
 	}
 }
