@@ -41,6 +41,8 @@ func main() {
 	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
 	e.GET("/us/:proj", handlers.UserStoriesPage(store))
 
+	e.GET("/data/:proj/:id", handlers.ExtraData(store))
+
 	e.GET("/print/:proj", handlers.PrintPage(store))
 
 	e.POST("/report", handlers.PostReport(store))

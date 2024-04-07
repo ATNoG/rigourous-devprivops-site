@@ -20,6 +20,15 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
         @Regulation(report.Project, regulation, localUrls)
     }
     </div>
+
+    <!--UNSAFE!! Fix-->
+    <div 
+        hx-get={fmt.Sprintf("/data/%s/hello.test?headingLevel=3", report.Project)}
+        hx-trigger="load"
+        hx-swap="outerHTML"
+    >
+    // <div hx-get={templ.SafeURL(fmt.Sprintf("/data/%s/%s", project, id))}>
+    </div>
 }
 
 templ Regulation (project string, regulation *data.Regulation, localUrls bool) {
@@ -41,6 +50,12 @@ templ Regulation (project string, regulation *data.Regulation, localUrls bool) {
         </a>
     </div>
 }
+
+/*
+func htmxEndpoint(project string, id string) SafeURL {
+    return templ.SafeURL(fmt.Sprintf("/data/%s/%s", project, id))
+}
+*/
 
 func makeURL(project string, regulation string, local bool) templ.SafeURL {
     if local {

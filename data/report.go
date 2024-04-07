@@ -6,6 +6,7 @@ type Report struct {
 	Project     string
 	Regulations []*Regulation
 	UserStories []*UserStory
+	ExtraData   []*ExtraData
 }
 
 type Regulation struct {
@@ -29,5 +30,13 @@ type UserStory struct {
 type Requirement struct {
 	Title       string
 	Description string
+	Results     []map[string]interface{}
+}
+
+type ExtraData struct {
+	Url         string
+	Heading     string
+	Description string
+	DataRowLine string
 	Results     []map[string]interface{}
 }

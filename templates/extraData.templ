@@ -1,0 +1,26 @@
+package templates
+
+import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+
+templ ExtraData(extra *data.ExtraData, headingLevel int) {
+    switch headingLevel {
+        case 1:
+        <h1 class="heading text-3xl">{extra.Heading}</h1>
+        case 2:
+        <h2 class="heading text-2xl">{extra.Heading}</h2>
+        case 3:
+        <h3 class="heading text-xl">{extra.Heading}</h3>
+        case 4:
+        <h4>{extra.Heading}</h4>
+        case 5:
+        <h5>{extra.Heading}</h5>
+        default:
+        <h6>{extra.Heading}</h6>
+    }
+
+    <p>
+    {extra.Description}
+    </p>
+
+    @ViolationTable(&extra.Results)
+}

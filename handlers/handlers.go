@@ -56,6 +56,31 @@ func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 	}
 }
 
+func ExtraData(store *data.Store) func(ctx echo.Context) error {
+	return func(ctx echo.Context) error {
+		project := ctx.Param("proj")
+		dataId := ctx.Param("id")
+		headingLvlStr := ctx.QueryParam("headingLevel")
+		headingLevel, err := strconv.Atoi(headingLvlStr)
+		if err != nil {
+			return err
+		}
+
+		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+
+		dataList := util.Filter(report.ExtraData, func(d *data.ExtraData) bool {
+			return d.Url == dataId
+		})
+
+		if len(dataList) != 0 {
+			return tpl.PageSingle[*data.ExtraData]("Extra Data", func(d *data.ExtraData) templ.Component { return tpl.ExtraData(d, headingLevel) }, dataList[0]).Render(ctx.Request().Context(), ctx.Response())
+		}
+
+		fmt.Println("Could not find extra data")
+		return nil
+	}
+}
+
 func PrintPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
@@ -168,12 +193,35 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 			})
 		}
 
+		extraDataRaw := iface["extra data"].([]interface{})
+		extraDataList := []*data.ExtraData{}
+
+		// extra data->X
+		for _, dRaw := range extraDataRaw {
+			d := dRaw.(map[string]interface{})
+			// resultsRaw := d["results"].([]interface{})
+			resultsRaw := []interface{}{}
+			if d["results"] != nil {
+				resultsRaw = d["results"].([]interface{})
+			}
+			results := util.Map(resultsRaw, func(r interface{}) map[string]interface{} { return r.(map[string]interface{}) })
+
+			extraDataList = append(extraDataList, &data.ExtraData{
+				Url:         d["url"].(string),
+				Heading:     d["heading"].(string),
+				Description: d["description"].(string),
+				DataRowLine: d["data row line"].(string),
+				Results:     results,
+			})
+		}
+
 		report := data.Report{
 			Branch:      branch,
 			Time:        time,
 			Project:     project,
 			Regulations: regulationsList,
 			UserStories: userStoryList,
+			ExtraData:   extraDataList,
 		}
 		final, err := json.MarshalIndent(report, "", " ")
 		if err != nil {
