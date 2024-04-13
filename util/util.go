@@ -46,3 +46,12 @@ func ToHTMLID(input string) string {
 	lowercase := strings.ToLower(replaced)
 	return lowercase
 }
+
+func Contains[T comparable](s []T, e T) bool {
+	for _, a := range s {
+		if a == e {
+			return true
+		}
+	}
+	return false
+}

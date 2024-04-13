@@ -52,7 +52,12 @@ func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 
 		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
 
-		return tpl.Page[*data.UserStory]("User Stories Page", tpl.RequirementsPage, report.UserStories...).Render(ctx.Request().Context(), ctx.Response())
+		return tpl.Page[*data.UserStory](
+			"User Stories Page",
+			func(userStories ...*data.UserStory) templ.Component {
+				return tpl.RequirementsPage(project, userStories...)
+			},
+			report.UserStories...).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 

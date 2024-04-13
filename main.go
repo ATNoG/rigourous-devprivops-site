@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/Joao-Felisberto/devprivops-dashboard/data"
 	"github.com/Joao-Felisberto/devprivops-dashboard/handlers"
+	"github.com/joho/godotenv"
 	"github.com/labstack/echo"
 )
 
@@ -47,7 +49,21 @@ func main() {
 
 	e.POST("/report", handlers.PostReport(store))
 
-	e.Logger.Fatal(e.Start("localhost:8080"))
+	err = godotenv.Load()
+	if err != nil {
+		slog.Error("Error loading .env file")
+	}
+
+	host, found := os.LookupEnv("HOST")
+	if !found {
+		slog.Error("'HOST' key not found in environment")
+	}
+	port, found := os.LookupEnv("PORT")
+	if !found {
+		slog.Error("'PORT' key not found in environment")
+	}
+
+	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%s", host, port)))
 
 	store.ToFile("db.json")
 }

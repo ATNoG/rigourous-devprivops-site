@@ -3,23 +3,31 @@
 @tailwind utilities;
 
 h1 {
-    @apply pt-8 pb-6
+    @apply text-3xl pt-8 pb-6 text-emerald-700 font-semibold
 }
 
 h2 {
-    @apply pt-6 pb-4
+    @apply text-2xl pt-6 pb-4 text-emerald-700 font-semibold
+}
+
+h3 {
+    @apply text-xl text-emerald-700 
+}
+
+h4 {
+    @apply text-emerald-700 
 }
 
 body {
-    @apply text-slate-300
+    @apply text-neutral-800
 }
 
 table {
-    @apply table-auto bg-zinc-600	
+    @apply table-auto bg-emerald-100	
 }
 
 thead {
-    @apply border-b-2 border-b-stone-50 bg-zinc-800	
+    @apply border-b-2 border-b-stone-50 bg-emerald-300	
 }
 
 tbody tr {
@@ -30,17 +38,35 @@ td {
     @apply py-2 px-3
 }
 
+/* Nesting of an indefinite amount of lists */
+ul,
+ol {
+    padding-left: 0;
+    list-style: none;
+}
+
+li {
+    margin-left: 20px;
+}
+
+ul ul,
+ol ul,
+ul ol,
+ol ol {
+    margin-left: 20px;
+}
+
 @layer components {
     .page {
-        @apply bg-zinc-700 px-20
+        @apply bg-teal-50 px-20
+    }
+
+    .block {
+        @apply p-5 my-5
     }
 
     .card {
-        @apply rounded-md border-solid border-lime-600 border-4 p-5 my-5
-    }
-
-    .heading {
-        @apply text-emerald-500 font-semibold;
+        @apply block rounded-md border-solid border-lime-600 border-4
     }
 
     .grid-container {
@@ -48,6 +74,6 @@ td {
     }
 
     .link-btn {
-        @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded 
+        @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-2 mr-2 rounded 
     }
 }

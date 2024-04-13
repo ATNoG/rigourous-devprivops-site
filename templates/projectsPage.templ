@@ -8,7 +8,7 @@ import "sort"
 import "slices"
 
 templ ProjectsPage(reports ...*data.Report) {
-    <h1 class="heading text-3xl">
+    <h1>
         Projects
     </h1>
 
@@ -22,13 +22,18 @@ templ ProjectsPage(reports ...*data.Report) {
 templ Project(report *data.Report) {
     <div class="card">
         <a href={templ.URL(fmt.Sprintf("/view/%s", report.Project))}>
-            <h3 class="text-xl text-slate-300">
+            <h3>
                 {report.Project}
             </h3>
 
             <p>
             {report.Branch}:{fmt.Sprint(report.Time)}
             </p>
+
+            <div class="py-3">
+                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/print/%s", report.Project))}>Print</a>
+                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/us/%s", report.Project))}>User Stories</a>
+            </div>
         </a>
     </div>
 }

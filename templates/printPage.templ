@@ -1,11 +1,55 @@
 package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+import "github.com/Joao-Felisberto/devprivops-dashboard/util"
+import "fmt"
 
 templ PrintPage(report *data.Report) {
-    @RegulationsPage(report, true)
+    
+    @Index(report)
+
+    // @RegulationsPage(report, true)
 
     for _, r := range report.Regulations {
         @PoliciesPage(report.Project, r)
+    }
+}
+
+templ Index(report *data.Report) {
+    <h1>Index</h1>
+
+    <ol>
+        <li> Regulations
+
+        <ol>
+        for _, r := range report.Regulations {
+            <li><a href={makeURL(report.Project, r.Name, true, "view")}>{r.Name}</a></li>    
+            <ol>
+            for _, c := range r.ConsistencyResults {
+                <li><a href={makePolURL(report.Project, r.Name, c.Name, true, "view")}>{c.Name}</a></li>    
+            }
+            for _, p := range r.PolicyResults {
+                <li><a href={makePolURL(report.Project, r.Name, p.Name , true, "view")}>{p.Name}</a></li>    
+            }
+            </ol>
+        }
+        </ol>
+        </li>
+        <li> User Stories 
+            <ol>
+            for _, us := range report.UserStories {
+                <li><a href={makeURL(report.Project, us.UseCase, true, "us")}></a></li>    
+            }
+            </ol>
+        </li>
+    </ol>
+}
+
+func makePolURL(project string, regulation string, policy string, local bool, root string) templ.SafeURL {
+    if local {
+        id := util.ToHTMLID(policy)
+        return templ.URL(fmt.Sprintf("#%s", id))
+    } else { 
+        return templ.URL(fmt.Sprintf("/%s/%s/%s#%s", project, regulation, root, util.ToHTMLID(policy)))
     }
 }

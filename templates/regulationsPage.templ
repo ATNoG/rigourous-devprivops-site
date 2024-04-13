@@ -6,7 +6,7 @@ import "fmt"
 import "strconv"
 
 templ RegulationsPage(report *data.Report, localUrls bool) {
-    <h1 class="heading text-3xl">
+    <h1>
         Report for {report.Project}
     </h1>
 
@@ -23,7 +23,7 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
 
     <!--TODO: UNSAFE!! Fix-->
     <div 
-        hx-get={fmt.Sprintf("/data/%s/regulations?headingLevel=3", report.Project)}
+        hx-get={fmt.Sprintf("/data/%s/regulations?headingLevel=2", report.Project)}
         hx-trigger="load"
         hx-swap="outerHTML"
     >
@@ -34,8 +34,8 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
 templ Regulation (project string, regulation *data.Regulation, localUrls bool) {
     <div class="card">
         <!--<a href={templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation.Name))}>-->
-        <a href={makeURL(project, regulation.Name, localUrls)}>
-            <h3 class="text-xl text-slate-300">
+        <a href={makeURL(project, regulation.Name, localUrls, "view")}>
+            <h3>
                 {regulation.Name}
             </h3>
 
@@ -57,12 +57,12 @@ func htmxEndpoint(project string, id string) SafeURL {
 }
 */
 
-func makeURL(project string, regulation string, local bool) templ.SafeURL {
+func makeURL(project string, regulation string, local bool, root string) templ.SafeURL {
     if local {
         id := util.ToHTMLID(regulation)
         return templ.URL(fmt.Sprintf("#%s", id))
     } else { 
-        return templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation))
+        return templ.URL(fmt.Sprintf("/%s/%s/%s", project, regulation, root))
     }
 }
 
