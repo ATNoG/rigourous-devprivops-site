@@ -2,6 +2,7 @@ package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
+import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 
 templ RequirementsPage(project string, userStories ...*data.UserStory) {
     <h1>
@@ -22,7 +23,7 @@ templ RequirementsPage(project string, userStories ...*data.UserStory) {
 }
 
 templ US(project string, us *data.UserStory) {
-    <h2>
+    <h2 id={util.ToHTMLID(us.UseCase)}>
        Completion of {us.UseCase}
     </h2>
     
@@ -40,7 +41,7 @@ templ US(project string, us *data.UserStory) {
 
 templ Requirement(requirement *data.Requirement) {
     <div class="block">
-        <h3>
+        <h3 id={util.ToHTMLID(requirement.Title)}>
             {requirement.Title}
         </h3>
         <p class="py-5">

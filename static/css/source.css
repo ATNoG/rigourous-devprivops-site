@@ -46,14 +46,15 @@ ol {
 }
 
 li {
-    margin-left: 20px;
+    margin-left: 1em;
+    padding-top: 0.5em;
 }
 
 ul ul,
 ol ul,
 ul ol,
 ol ol {
-    margin-left: 20px;
+    margin-left: 1em;
 }
 
 @layer components {

@@ -50,8 +50,12 @@ templ Policy(project string, regulation string, result *data.RuleResult) {
         >
         </div>
         
+        <p class="pt-5">
+            {result.Description}
+        </p>
+
         <p class="py-5">
-        {result.MappingMessage}
+            {result.MappingMessage}
         </p>
 
         @ViolationTable(&result.Results)

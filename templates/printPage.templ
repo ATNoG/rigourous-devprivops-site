@@ -13,6 +13,14 @@ templ PrintPage(report *data.Report) {
     for _, r := range report.Regulations {
         @PoliciesPage(report.Project, r)
     }
+
+    for _, us := range report.UserStories {
+        @US(report.Project, us)
+    }
+
+    for _, tree := range report.AttackTrees {
+        @Tree(tree)
+    }
 }
 
 templ Index(report *data.Report) {
@@ -20,25 +28,30 @@ templ Index(report *data.Report) {
 
     <ol>
         <li> Regulations
-
-        <ol>
-        for _, r := range report.Regulations {
-            <li><a href={makeURL(report.Project, r.Name, true, "view")}>{r.Name}</a></li>    
             <ol>
-            for _, c := range r.ConsistencyResults {
-                <li><a href={makePolURL(report.Project, r.Name, c.Name, true, "view")}>{c.Name}</a></li>    
-            }
-            for _, p := range r.PolicyResults {
-                <li><a href={makePolURL(report.Project, r.Name, p.Name , true, "view")}>{p.Name}</a></li>    
+            for _, r := range report.Regulations {
+                <li><a href={makeURL(report.Project, r.Name, true, "view")}>{r.Name}</a></li>    
+                <ol>
+                for _, c := range r.ConsistencyResults {
+                    <li><a href={makePolURL(report.Project, r.Name, c.Name, true, "view")}>{c.Name}</a></li>    
+                }
+                for _, p := range r.PolicyResults {
+                    <li><a href={makePolURL(report.Project, r.Name, p.Name , true, "view")}>{p.Name}</a></li>    
+                }
+                </ol>
             }
             </ol>
-        }
-        </ol>
         </li>
+
         <li> User Stories 
             <ol>
             for _, us := range report.UserStories {
-                <li><a href={makeURL(report.Project, us.UseCase, true, "us")}></a></li>    
+                <li><a href={makeURL(report.Project, us.UseCase, true, "us")}>{us.UseCase}</a></li>    
+                <ol>
+                for _, r := range us.Requirements {
+                    <li><a href={makePolURL(report.Project, us.UseCase, r.Title, true, "us")}>{r.Title}</a></li>    
+                }
+                </ol>
             }
             </ol>
         </li>

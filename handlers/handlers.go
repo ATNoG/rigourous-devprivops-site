@@ -117,116 +117,13 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		}
 		fmt.Println(string(m))
 
-		branch := iface["branch"].(string)
-		time, err := strconv.ParseInt(iface["time"].(string), 10, 64)
+		var report data.Report
+		err = json.Unmarshal(raw, &report)
 		if err != nil {
-			// TODO: better error handling
-			panic(err)
-		}
-		project := iface["project"].(string)
-
-		regulationsRaw := iface["policies"].(map[string]interface{})
-
-		regulationsList := []*data.Regulation{}
-
-		// policies->X
-		for regName, reg := range regulationsRaw {
-			consistencyRes := []*data.RuleResult{}
-			policyRes := []*data.RuleResult{}
-			regulation := reg.(map[string]interface{})
-
-			// policies->[gdpr]->X
-			for polName, pol := range regulation {
-				policy := pol.(map[string]interface{})
-
-				var violations []map[string]interface{}
-				if policy["violations"] != nil {
-					violationsRaw := policy["violations"].([]interface{})
-					for _, v := range violationsRaw {
-						violations = append(violations, v.(map[string]interface{}))
-					}
-				}
-
-				if policy["is consistency"].(bool) {
-					consistencyRes = append(consistencyRes, &data.RuleResult{
-						Name:           polName,
-						Results:        violations,
-						MappingMessage: policy["mapping message"].(string),
-					})
-				} else {
-					policyRes = append(policyRes, &data.RuleResult{
-						Name:           polName,
-						Results:        violations,
-						MappingMessage: policy["mapping message"].(string),
-					})
-				}
-			}
-
-			fmt.Printf("%s cons:%d pol:%d\n", regName, len(consistencyRes), len(policyRes))
-			regulationsList = append(regulationsList, &data.Regulation{
-				Name:               regName,
-				ConsistencyResults: consistencyRes,
-				PolicyResults:      policyRes,
-			})
+			fmt.Println(err)
+			return err
 		}
 
-		userStoriesRaw := iface["user stories"].(map[string]interface{})
-		userStoryList := []*data.UserStory{}
-
-		// user stories->X
-		for usName, usRaw := range userStoriesRaw {
-			us := usRaw.(map[string]interface{})
-
-			isMisuseCase := us["is misuse case"].(bool)
-			requirementsRaw := us["requirements"].([]interface{})
-
-			requirements := util.Map(requirementsRaw, func(r interface{}) data.Requirement {
-				req := r.(map[string]interface{})
-				ress := util.Map(req["results"].([]interface{}), func(rr interface{}) map[string]interface{} { return rr.(map[string]interface{}) })
-				return data.Requirement{
-					Title:       req["title"].(string),
-					Description: req["description"].(string),
-					Results:     ress,
-				}
-			})
-
-			userStoryList = append(userStoryList, &data.UserStory{
-				UseCase:      usName,
-				IsMisuseCase: isMisuseCase,
-				Requirements: requirements,
-			})
-		}
-
-		extraDataRaw := iface["extra data"].([]interface{})
-		extraDataList := []*data.ExtraData{}
-
-		// extra data->X
-		for _, dRaw := range extraDataRaw {
-			d := dRaw.(map[string]interface{})
-			// resultsRaw := d["results"].([]interface{})
-			resultsRaw := []interface{}{}
-			if d["results"] != nil {
-				resultsRaw = d["results"].([]interface{})
-			}
-			results := util.Map(resultsRaw, func(r interface{}) map[string]interface{} { return r.(map[string]interface{}) })
-
-			extraDataList = append(extraDataList, &data.ExtraData{
-				Url:         d["url"].(string),
-				Heading:     d["heading"].(string),
-				Description: d["description"].(string),
-				DataRowLine: d["data row line"].(string),
-				Results:     results,
-			})
-		}
-
-		report := data.Report{
-			Branch:      branch,
-			Time:        time,
-			Project:     project,
-			Regulations: regulationsList,
-			UserStories: userStoryList,
-			ExtraData:   extraDataList,
-		}
 		final, err := json.MarshalIndent(report, "", " ")
 		if err != nil {
 			return err
@@ -234,6 +131,8 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 
 		store.Data = append(store.Data, &report)
 		fmt.Printf("%s\n", string(final))
+
+		store.ToFile("db.json")
 
 		return tpl.Hello(string(final)).Render(ctx.Request().Context(), ctx.Response())
 	}

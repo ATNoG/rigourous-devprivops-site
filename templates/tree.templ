@@ -1,0 +1,27 @@
+package templates
+
+import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+
+templ Tree(tree *data.AttackTree) {
+    // <h3>{tree.Root.Description}</h3>
+    <div class="tf-tree example">
+        <ul>
+        @Node(&tree.Root)
+        </ul>
+    </div>
+}
+
+templ Node(node *data.AttackNode) {
+    <li>
+        <span class="tf-nc">
+            {node.Description}
+        </span>
+        if len(node.Children) > 0 {
+            <ul>
+            for _, n := range node.Children {
+                @Node(n)
+            }
+            </ul>
+        }
+    </li>
+}
