@@ -9,6 +9,7 @@ import (
 type Report struct {
 	Branch      string        `json:"branch"`
 	Time        int64         `json:"time"`
+	Config      string        `json:"config"`
 	Project     string        `json:"project"`
 	Regulations []*Regulation `json:"policies"`
 	UserStories []*UserStory  `json:"user stories"`

@@ -27,6 +27,10 @@ templ Project(report *data.Report) {
             </h3>
 
             <p>
+            {report.Config}
+            </p>
+
+            <p>
             {report.Branch}:{fmt.Sprint(report.Time)}
             </p>
 
