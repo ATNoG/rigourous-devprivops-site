@@ -1,9 +1,37 @@
 package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
+import "github.com/Joao-Felisberto/devprivops-dashboard/util"
+// import "fmt"
+
+templ AttackTreePage(trees ...*data.AttackTree) {
+    <h1>Attack and Harm Trees</h1>
+    for _, tree := range trees {
+        <h2 id={util.ToHTMLID(tree.Root.Description)}>{tree.Root.Description}</h2>
+
+        @AttackTree(tree)
+    }
+}
+
+templ AttackTree(tree *data.AttackTree) {
+    @Tree(tree)
+    
+    //@ViolationTable(tree.Root.Children[0].Children[0].ExecutionResult)
+    @NodeTable(&tree.Root)
+}
+
+templ NodeTable(node *data.AttackNode) {
+    for _, c := range node.Children {
+        @NodeTable(c)
+    }
+
+    if node.ExecutionStatus == data.POSSIBLE {
+        <h3 >{node.Description}</h3>
+        @ViolationTable(node.ExecutionResult)
+    }
+}
 
 templ Tree(tree *data.AttackTree) {
-    // <h3>{tree.Root.Description}</h3>
     <div class="tf-tree example">
         <ul>
         @Node(&tree.Root)
@@ -13,7 +41,7 @@ templ Tree(tree *data.AttackTree) {
 
 templ Node(node *data.AttackNode) {
     <li>
-        <span class="tf-nc">
+        <span class={getNodeClasses(node)}>
             {node.Description}
         </span>
         if len(node.Children) > 0 {
@@ -24,4 +52,19 @@ templ Node(node *data.AttackNode) {
             </ul>
         }
     </li>
+}
+
+func getNodeClasses(node *data.AttackNode) string {
+    switch (node.ExecutionStatus) {
+	case data.NOT_EXECUTED:
+        return "tf-nc bg-stone-400"
+	case data.NOT_POSSIBLE:
+        return "tf-nc bg-red-400"
+	case data.POSSIBLE:
+        return "tf-nc bg-green-500"
+	case data.ERROR:
+        return "tf-nc bg-red-600"
+    default:
+        return "tf-nc bg-pink-500"
+    }
 }

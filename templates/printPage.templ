@@ -18,9 +18,7 @@ templ PrintPage(report *data.Report) {
         @US(report.Project, us)
     }
 
-    for _, tree := range report.AttackTrees {
-        @Tree(tree)
-    }
+    @AttackTreePage(report.AttackTrees...)
 }
 
 templ Index(report *data.Report) {
@@ -52,6 +50,14 @@ templ Index(report *data.Report) {
                     <li><a href={makePolURL(report.Project, us.UseCase, r.Title, true, "us")}>{r.Title}</a></li>    
                 }
                 </ol>
+            }
+            </ol>
+        </li>
+
+        <li> Attack and Harm Trees
+            <ol>
+            for _, tree := range report.AttackTrees {
+                <li><a href={makeURL(report.Project, tree.Root.Description, true, "us")}>{tree.Root.Description}</a></li>    
             }
             </ol>
         </li>

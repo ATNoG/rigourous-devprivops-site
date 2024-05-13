@@ -61,6 +61,21 @@ func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 	}
 }
 
+func AttackTreesPage(store *data.Store) func(ctx echo.Context) error {
+	return func(ctx echo.Context) error {
+		project := ctx.Param("proj")
+
+		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+
+		return tpl.Page[*data.AttackTree](
+			"Attack and Harm Tree Page",
+			func(trees ...*data.AttackTree) templ.Component {
+				return tpl.AttackTreePage(trees...)
+			},
+			report.AttackTrees...).Render(ctx.Request().Context(), ctx.Response())
+	}
+}
+
 func ExtraData(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")

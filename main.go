@@ -42,6 +42,7 @@ func main() {
 	e.GET("/view/:proj", handlers.RegulationsPage(store))
 	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
 	e.GET("/us/:proj", handlers.UserStoriesPage(store))
+	e.GET("/tree/:proj", handlers.AttackTreesPage(store))
 
 	e.GET("/data/:proj/:id", handlers.ExtraData(store))
 

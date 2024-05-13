@@ -37,6 +37,7 @@ templ Project(report *data.Report) {
             <div class="py-3">
                 <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/print/%s", report.Project))}>Print</a>
                 <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/us/%s", report.Project))}>User Stories</a>
+                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/tree/%s", report.Project))}>Attack Trees</a>
             </div>
         </a>
     </div>

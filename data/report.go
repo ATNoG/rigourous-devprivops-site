@@ -85,10 +85,11 @@ const (
 // A node is composed of a query, which is its condition, the child nodes and some metadata.
 // A node is only evaluated if at least one of its pre-conditions (its children) is possible, or has no children.
 type AttackNode struct {
-	Description     string          `json:"description"`      // Brief textual description of the node's condition
-	Query           string          `json:"query"`            // Path to the query that encodes the condition
-	Children        []*AttackNode   `json:"children"`         // The node's pre-conditions
-	ExecutionStatus ExecutionStatus `json:"execution status"` // The current execution stats of the node, may change when the tree is executed
+	Description     string                    `json:"description"`      // Brief textual description of the node's condition
+	Query           string                    `json:"query"`            // Path to the query that encodes the condition
+	Children        []*AttackNode             `json:"children"`         // The node's pre-conditions
+	ExecutionStatus ExecutionStatus           `json:"execution status"` // The current execution stats of the node, may change when the tree is executed
+	ExecutionResult *[]map[string]interface{} `json:"execution result"` // The result of running the query, if it was run, else nil
 }
 
 // Represents the whole attack/harm tree.
