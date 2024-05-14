@@ -4,31 +4,31 @@ import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 import "fmt"
 import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 
-templ RequirementsPage(project string, userStories ...*data.UserStory) {
+templ RequirementsPage(project string, config string, repId string, userStories ...*data.UserStory) {
     <h1>
        User Story Completion
     </h1>
     
     <!--TODO: UNSAFE!! Fix-->
     <div 
-        hx-get={fmt.Sprintf("/data/%s/us?headingLevel=2", project)}
+        hx-get={fmt.Sprintf("/data/%s/%s/%s/us?headingLevel=2", project, config, repId)}
         hx-trigger="load"
         hx-swap="outerHTML"
     >
     </div>
 
     for _, us := range userStories {
-        @US(project, us)
+        @US(project, config, repId, us)
     }
 }
 
-templ US(project string, us *data.UserStory) {
+templ US(project string, config string, repId string, us *data.UserStory) {
     <h2 id={util.ToHTMLID(us.UseCase)}>
        Completion of {us.UseCase}
     </h2>
     
     <div 
-        hx-get={fmt.Sprintf("/data/%s/us/%s?headingLevel=3", project, us.UseCase)}
+        hx-get={fmt.Sprintf("/data/%s/%s/%s/us/%s?headingLevel=3", project, config, repId, us.UseCase)}
         hx-trigger="load"
         hx-swap="outerHTML"
     >

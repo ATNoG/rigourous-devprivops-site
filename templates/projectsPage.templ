@@ -1,11 +1,16 @@
 package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
-import "fmt"
 import "strconv"
 import "time"
 import "sort"
-import "slices"
+
+
+script redirectToUrl(root, project, config, selectId string) {
+    var selectElement = document.getElementById(selectId);
+    var selectedValue = selectElement.options[selectElement.selectedIndex].value;
+    window.location.href = `/${root}/${project}/${config}/${selectedValue}`;
+}
 
 templ ProjectsPage(reports ...*data.Report) {
     <h1>
@@ -14,48 +19,68 @@ templ ProjectsPage(reports ...*data.Report) {
 
     <div class="grid-container">
         for _, report := range sortReports(reports) {
-            @Project(report)
+            @Project(report[0], report[0:])
         }
     </div>
 }
 
-templ Project(report *data.Report) {
+templ Project(report *data.Report, olderReports []*data.Report) {
     <div class="card">
-        <a href={templ.URL(fmt.Sprintf("/view/%s", report.Project))}>
-            <h3>
-                {report.Project}
-            </h3>
+        <h3>
+        {report.Project}
+        </h3>
 
-            <p>
-            {report.Config}
-            </p>
+        <p>
+        {report.Config}
+        </p>
 
-            <p>
-            {report.Branch}:{fmt.Sprint(report.Time)}
-            </p>
+        <p>
+        <label for={report.GetId()}> Choose </label>
+        <select name={report.GetId()} id={report.GetId()}>
+            for _, r := range olderReports {
+                <option>
+                    {r.GetId()}
+                </option>
+            }
+        </select>
+        </p>
 
-            <div class="py-3">
-                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/print/%s", report.Project))}>Print</a>
-                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/us/%s", report.Project))}>User Stories</a>
-                <a class="link-btn text-sm" href={templ.SafeURL(fmt.Sprintf("/tree/%s", report.Project))}>Attack Trees</a>
-            </div>
-        </a>
+        <div class="py-3">
+            <a class="link-btn text-sm" href="#" onclick={redirectToUrl("view", report.Project, report.Config, report.GetId())}>View</a>
+            <a class="link-btn text-sm" href="#" onclick={redirectToUrl("print", report.Project, report.Config, report.GetId())}>Print</a>
+            <a class="link-btn text-sm" href="#" onclick={redirectToUrl("us", report.Project, report.Config, report.GetId())}>User Stories</a>
+            <a class="link-btn text-sm" href="#" onclick={redirectToUrl("tree", report.Project, report.Config, report.GetId())}>Attack Trees</a>
+        </div>
     </div>
 }
 
-func sortReports(reports []*data.Report) []*data.Report {
+func sortReports(reports []*data.Report) /*[]*data.Report*/ map[[2]string][]*data.Report {
+    /*
     sort.Slice(reports, func(i, j int) bool {return reports[i].Time > reports[j].Time})
 
     unique := []*data.Report {}    
-    visited := []string {}
+    visited := [][2]string {}
     for _, e := range reports {
-        if !slices.Contains(visited, e.Project) {
+        if !slices.ContainsFunc(visited, func(pair [2]string) bool { return reflect.DeepEqual(pair, [2]string{e.Project, e.Config}) }) {
             unique = append(unique, e)
-            visited = append(visited, e.Project)
+            visited = append(visited, [2]string{e.Project, e.Config})
         } 
     }
 
     return unique
+    */
+    res := map[[2]string][]*data.Report {}
+
+    for _, e := range reports {
+        key := [2]string{e.Project, e.Config}
+        res[key] = append(res[key], e)
+    }
+
+    for k, _ := range res {
+        sort.Slice(res[k], func(i, j int) bool {return res[k][i].Time > res[k][j].Time})
+    }
+
+    return res
 }
 
 func formatTime(timestampStr string) string {

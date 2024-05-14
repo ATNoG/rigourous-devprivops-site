@@ -28,7 +28,13 @@ func ProjectsPage(store *data.Store) func(ctx echo.Context) error {
 func RegulationsPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
 
 		return tpl.PageSingle[*data.Report]("Report Page", func(*data.Report) templ.Component { return tpl.RegulationsPage(report, false) }, report).Render(ctx.Request().Context(), ctx.Response())
 	}
@@ -37,25 +43,50 @@ func RegulationsPage(store *data.Store) func(ctx echo.Context) error {
 func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
 		regName := ctx.Param("reg")
 
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
+
+		for _, rep := range store.Data {
+			for _, reg := range rep.Regulations {
+				for _, a := range reg.ConsistencyResults {
+					fmt.Printf("%+v\n", a)
+				}
+			}
+		}
+
+		fmt.Println(util.Map(report.Regulations, func(r *data.Regulation) int { return len(r.ConsistencyResults) + len(r.PolicyResults) }))
+
 		regulation := util.Filter(report.Regulations, func(r *data.Regulation) bool { return r.Name == regName })[0]
 
-		return tpl.PageSingle[*data.Regulation]("Report Page", func(r *data.Regulation) templ.Component { return tpl.PoliciesPage(project, r) }, regulation).Render(ctx.Request().Context(), ctx.Response())
+		fmt.Printf("%+v\n", regulation)
+
+		return tpl.PageSingle[*data.Regulation]("Report Page", func(r *data.Regulation) templ.Component { return tpl.PoliciesPage(project, config, repId, r) }, regulation).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 
 func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
 
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
 
 		return tpl.Page[*data.UserStory](
 			"User Stories Page",
 			func(userStories ...*data.UserStory) templ.Component {
-				return tpl.RequirementsPage(project, userStories...)
+				return tpl.RequirementsPage(project, config, repId, userStories...)
 			},
 			report.UserStories...).Render(ctx.Request().Context(), ctx.Response())
 	}
@@ -64,8 +95,14 @@ func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 func AttackTreesPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
 
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
 
 		return tpl.Page[*data.AttackTree](
 			"Attack and Harm Tree Page",
@@ -79,6 +116,8 @@ func AttackTreesPage(store *data.Store) func(ctx echo.Context) error {
 func ExtraData(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
 		dataId := ctx.Param("id")
 		headingLvlStr := ctx.QueryParam("headingLevel")
 		headingLevel, err := strconv.Atoi(headingLvlStr)
@@ -86,7 +125,11 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 			return err
 		}
 
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
 
 		dataList := util.Filter(report.ExtraData, func(d *data.ExtraData) bool {
 			return d.Url == dataId
@@ -103,8 +146,14 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 func PrintPage(store *data.Store) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		project := ctx.Param("proj")
+		config := ctx.Param("cfg")
+		repId := ctx.Param("repId")
 
-		report := util.Filter(store.Data, func(r *data.Report) bool { return r.Project == project })[0]
+		report := util.Filter(store.Data, func(r *data.Report) bool {
+			return r.Project == project &&
+				r.Config == config &&
+				r.GetId() == repId
+		})[0]
 
 		return tpl.PageSingle[*data.Report]("Print Page", tpl.PrintPage, report).Render(ctx.Request().Context(), ctx.Response())
 	}
@@ -122,7 +171,6 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		iface := map[string]interface{}{}
 		err = json.Unmarshal(raw, &iface)
 		if err != nil {
-			fmt.Printf("2: %s\n", string(raw))
 			return err
 		}
 
@@ -145,7 +193,6 @@ func PostReport(store *data.Store) func(ctx echo.Context) error {
 		}
 
 		store.Data = append(store.Data, &report)
-		fmt.Printf("%s\n", string(final))
 
 		store.ToFile("db.json")
 

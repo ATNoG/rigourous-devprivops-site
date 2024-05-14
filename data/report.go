@@ -2,6 +2,8 @@ package data
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/Joao-Felisberto/devprivops-dashboard/util"
 )
@@ -17,6 +19,10 @@ type Report struct {
 	AttackTrees []*AttackTree `json:"attack trees"`
 }
 
+func (r *Report) GetId() string {
+	return fmt.Sprintf("%s-%d", strings.ToLower(r.Branch), r.Time)
+}
+
 type Regulation struct {
 	Name               string        `json:"name"`
 	ConsistencyResults []*RuleResult `json:"consistency results"`
@@ -24,20 +30,40 @@ type Regulation struct {
 }
 
 func (r *Regulation) UnmarshalJSON(data []byte) error {
-	var fromReport struct {
-		Name    string        `json:"name"`
-		Results []*RuleResult `json:"results"`
+	var tmp struct {
+		A string        `json:"name"`
+		B []*RuleResult `json:"consistency results"`
+		C []*RuleResult `json:"policy results"`
 	}
-
-	err := json.Unmarshal(data, &fromReport)
+	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}
+	if !(len(tmp.B) == 0 && len(tmp.C) == 0) {
+		*r = Regulation{
+			tmp.A,
+			tmp.B,
+			tmp.C,
+		}
+	} else {
 
-	*r = Regulation{
-		Name:               fromReport.Name,
-		ConsistencyResults: util.Filter(fromReport.Results, func(r *RuleResult) bool { return r.IsConsistency }),
-		PolicyResults:      util.Filter(fromReport.Results, func(r *RuleResult) bool { return !r.IsConsistency }),
+		var fromReport struct {
+			Name    string        `json:"name"`
+			Results []*RuleResult `json:"results"`
+		}
+
+		err := json.Unmarshal(data, &fromReport)
+		if err != nil {
+			return err
+		}
+
+		*r = Regulation{
+			Name:               fromReport.Name,
+			ConsistencyResults: util.Filter(fromReport.Results, func(r *RuleResult) bool { return r.IsConsistency }),
+			PolicyResults:      util.Filter(fromReport.Results, func(r *RuleResult) bool { return !r.IsConsistency }),
+		}
+		fmt.Printf("++ %+v\n", r.ConsistencyResults)
+		fmt.Printf("-- %+v\n", r.PolicyResults)
 	}
 	return nil
 }
@@ -67,7 +93,7 @@ type ExtraData struct {
 	Heading     string                   `json:"heading"`
 	Description string                   `json:"description"`
 	DataRowLine string                   `json:"data row line"`
-	Results     []map[string]interface{} `json:"resulsts"`
+	Results     []map[string]interface{} `json:"results"`
 }
 
 // Represents the execution status of a tree node, either before or after the execution of its associated query

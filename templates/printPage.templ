@@ -11,11 +11,11 @@ templ PrintPage(report *data.Report) {
     // @RegulationsPage(report, true)
 
     for _, r := range report.Regulations {
-        @PoliciesPage(report.Project, r)
+        @PoliciesPage(report.Project, report.Config, report.GetId(), r)
     }
 
     for _, us := range report.UserStories {
-        @US(report.Project, us)
+        @US(report.Project, report.Config, report.GetId(), us)
     }
 
     @AttackTreePage(report.AttackTrees...)
@@ -28,7 +28,7 @@ templ Index(report *data.Report) {
         <li> Regulations
             <ol>
             for _, r := range report.Regulations {
-                <li><a href={makeURL(report.Project, r.Name, true, "view")}>{r.Name}</a></li>    
+                <li><a href={makeURL(report.Project, report.Config, report.GetId(), r.Name, true, "view")}>{r.Name}</a></li>    
                 <ol>
                 for _, c := range r.ConsistencyResults {
                     <li><a href={makePolURL(report.Project, r.Name, c.Name, true, "view")}>{c.Name}</a></li>    
@@ -44,7 +44,7 @@ templ Index(report *data.Report) {
         <li> User Stories 
             <ol>
             for _, us := range report.UserStories {
-                <li><a href={makeURL(report.Project, us.UseCase, true, "us")}>{us.UseCase}</a></li>    
+                <li><a href={makeURL(report.Project, report.Config, report.GetId(), us.UseCase, true, "us")}>{us.UseCase}</a></li>    
                 <ol>
                 for _, r := range us.Requirements {
                     <li><a href={makePolURL(report.Project, us.UseCase, r.Title, true, "us")}>{r.Title}</a></li>    
@@ -57,7 +57,7 @@ templ Index(report *data.Report) {
         <li> Attack and Harm Trees
             <ol>
             for _, tree := range report.AttackTrees {
-                <li><a href={makeURL(report.Project, tree.Root.Description, true, "us")}>{tree.Root.Description}</a></li>    
+                <li><a href={makeURL(report.Project, report.Config, report.GetId(), tree.Root.Description, true, "us")}>{tree.Root.Description}</a></li>    
             }
             </ol>
         </li>
@@ -65,6 +65,7 @@ templ Index(report *data.Report) {
 }
 
 func makePolURL(project string, regulation string, policy string, local bool, root string) templ.SafeURL {
+    // TODO: cleanup, local is always true
     if local {
         id := util.ToHTMLID(policy)
         return templ.URL(fmt.Sprintf("#%s", id))

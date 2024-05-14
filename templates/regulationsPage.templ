@@ -11,19 +11,20 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
     </h1>
 
     if !localUrls {
-    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/print/%s", report.Project))}>Printable Page</a>
-    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/us/%s", report.Project))}>User Stories Page</a>
+    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/print/%s/%s/%s", report.Project, report.Config, report.GetId()))}>Printable Page</a>
+    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/us/%s/%s/%s", report.Project, report.Config, report.GetId()))}>User Stories</a>
+    <a class="link-btn" href={templ.SafeURL(fmt.Sprintf("/tree/%s/%s/%s", report.Project, report.Config, report.GetId()))}>Attack and Harm Trees</a>
     }
 
     <div class="grid-container">
     for _, regulation := range report.Regulations {
-        @Regulation(report.Project, regulation, localUrls)
+        @Regulation(report.Project, report.Config, report.GetId(), regulation, localUrls)
     }
     </div>
 
     <!--TODO: UNSAFE!! Fix-->
     <div 
-        hx-get={fmt.Sprintf("/data/%s/regulations?headingLevel=2", report.Project)}
+        hx-get={fmt.Sprintf("/data/%s/%s/%s/regulations?headingLevel=2", report.Project, report.Config, report.GetId())}
         hx-trigger="load"
         hx-swap="outerHTML"
     >
@@ -31,10 +32,9 @@ templ RegulationsPage(report *data.Report, localUrls bool) {
     </div>
 }
 
-templ Regulation (project string, regulation *data.Regulation, localUrls bool) {
+templ Regulation (project string, config string, repId string, regulation *data.Regulation, localUrls bool) {
     <div class="card">
-        <!--<a href={templ.URL(fmt.Sprintf("/view/%s/%s", project, regulation.Name))}>-->
-        <a href={makeURL(project, regulation.Name, localUrls, "view")}>
+        <a href={makeURL(project, config, repId, regulation.Name, localUrls, "view")}>
             <h3>
                 {regulation.Name}
             </h3>
@@ -57,12 +57,12 @@ func htmxEndpoint(project string, id string) SafeURL {
 }
 */
 
-func makeURL(project string, regulation string, local bool, root string) templ.SafeURL {
+func makeURL(project string, config string, repId string, regulation string, local bool, root string) templ.SafeURL {
     if local {
         id := util.ToHTMLID(regulation)
         return templ.URL(fmt.Sprintf("#%s", id))
     } else { 
-        return templ.URL(fmt.Sprintf("/%s/%s/%s", project, regulation, root))
+        return templ.URL(fmt.Sprintf("/%s/%s/%s/%s/%s", root, project, config, repId, regulation))
     }
 }
 

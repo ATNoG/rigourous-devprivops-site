@@ -6,7 +6,7 @@ import "strconv"
 import "slices"
 import "github.com/Joao-Felisberto/devprivops-dashboard/util"
 
-templ PoliciesPage(project string, regulation *data.Regulation) {
+templ PoliciesPage(project string, config string, repId string, regulation *data.Regulation) {
     <h1 id={util.ToHTMLID(regulation.Name)}>
         Compliance with {regulation.Name}
     </h1>
@@ -17,14 +17,14 @@ templ PoliciesPage(project string, regulation *data.Regulation) {
     
     <!--TODO: UNSAFE!! Fix-->
     <div 
-        hx-get={fmt.Sprintf("/data/%s/regulations.%s?headingLevel=3", project, regulation.Name)}
+        hx-get={fmt.Sprintf("/data/%s/%s/%s/regulations.%s?headingLevel=3", project, config, repId, regulation.Name)}
         hx-trigger="load"
         hx-swap="outerHTML"
     >
     </div>
     
     for _, result := range regulation.ConsistencyResults {
-        @Policy(project, regulation.Name, result)
+        @Policy(project, config, repId, regulation.Name, result)
     }
 
     <h2> 
@@ -32,11 +32,11 @@ templ PoliciesPage(project string, regulation *data.Regulation) {
     </h2>
 
     for _, result := range regulation.PolicyResults {
-        @Policy(project, regulation.Name, result)
+        @Policy(project, config, repId, regulation.Name, result)
     }
 }
 
-templ Policy(project string, regulation string, result *data.RuleResult) {
+templ Policy(project string, config string, repId string, regulation string, result *data.RuleResult) {
     <div class="block">
         <h3 id={util.ToHTMLID(result.Name)}>
             {result.Name}
@@ -44,7 +44,7 @@ templ Policy(project string, regulation string, result *data.RuleResult) {
         
         <!--TODO: UNSAFE!! Fix-->
         <div 
-            hx-get={fmt.Sprintf("/data/%s/regulations.%s.%s?headingLevel=4", project, regulation, result.Name)}
+            hx-get={fmt.Sprintf("/data/%s/%s/%s/regulations.%s.%s?headingLevel=4", project, config, repId, regulation, result.Name)}
             hx-trigger="load"
             hx-swap="outerHTML"
         >
@@ -84,22 +84,9 @@ templ ViolationTable(violations *[]map[string]interface{}) {
 }
 
 func getVars(violations *[]map[string]interface{}) []string {
-    /*
-    if len(*violations) == 0 {
-        return []string {}
-    }
-    
-    first := (*violations)[0]
-
-    keys := []string {}
-    for k, _ := range first {
-        keys = append(keys, display(k))
-    }
-    */
-    
     keys := []string {}
     for _, v := range *violations {
-        for kRaw, _ := range v {
+        for kRaw := range v {
             k := display(kRaw)
             if !util.Contains(keys, k) {
                 keys = append(keys, display(k))
@@ -119,7 +106,7 @@ func toTable(violations *[]map[string]interface{}) [][]string {
 
     keys := []string {}
     res := [][]string {}
-    for k, _ := range first {
+    for k := range first {
         keys = append(keys, display(k))
     }
     slices.Sort(keys)

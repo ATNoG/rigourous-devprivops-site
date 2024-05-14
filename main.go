@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"log/slog"
@@ -21,6 +22,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	res, err := json.MarshalIndent(store.Data, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(string(res))
+
 	e.Static("/static", "static")
 
 	for _, f := range []string{
@@ -39,14 +46,14 @@ func main() {
 	e.Static("site.manifest", "/static/site.manifest")
 
 	e.GET("/", handlers.ProjectsPage(store))
-	e.GET("/view/:proj", handlers.RegulationsPage(store))
-	e.GET("/view/:proj/:reg", handlers.PoliciesPage(store))
-	e.GET("/us/:proj", handlers.UserStoriesPage(store))
-	e.GET("/tree/:proj", handlers.AttackTreesPage(store))
+	e.GET("/view/:proj/:cfg/:repId", handlers.RegulationsPage(store))
+	e.GET("/view/:proj/:cfg/:repId/:reg", handlers.PoliciesPage(store))
+	e.GET("/us/:proj/:cfg/:repId", handlers.UserStoriesPage(store))
+	e.GET("/tree/:proj/:cfg/:repId", handlers.AttackTreesPage(store))
 
-	e.GET("/data/:proj/:id", handlers.ExtraData(store))
+	e.GET("/data/:proj/:cfg/:repId/:id", handlers.ExtraData(store))
 
-	e.GET("/print/:proj", handlers.PrintPage(store))
+	e.GET("/print/:proj/:cfg/:repId", handlers.PrintPage(store))
 
 	e.POST("/report", handlers.PostReport(store))
 
