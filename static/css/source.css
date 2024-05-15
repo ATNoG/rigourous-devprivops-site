@@ -11,7 +11,7 @@ h2 {
 }
 
 h3 {
-    @apply text-xl text-emerald-700 
+    @apply text-xl pt-3 pb-2 text-emerald-700 
 }
 
 h4 {
@@ -59,7 +59,7 @@ ol ol {
 
 @layer components {
     .page {
-        @apply bg-teal-50 px-20
+        @apply bg-zinc-200 px-20
     }
 
     .block {
@@ -67,7 +67,7 @@ ol ol {
     }
 
     .card {
-        @apply block rounded-md border-solid border-lime-600 border-4
+        @apply transition-shadow ease-in-out duration-700 shadow-xl hover:shadow-2xl block rounded-md 
     }
 
     .grid-container {

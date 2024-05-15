@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"log/slog"
@@ -21,12 +20,6 @@ func main() {
 		log.Fatalf("Error opening database: %s", err)
 		os.Exit(1)
 	}
-
-	res, err := json.MarshalIndent(store.Data, "", "  ")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Println(string(res))
 
 	e.Static("/static", "static")
 
