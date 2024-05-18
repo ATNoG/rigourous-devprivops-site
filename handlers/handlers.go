@@ -136,7 +136,12 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 		})
 
 		if len(dataList) != 0 {
-			return tpl.PageSingle[*data.ExtraData]("Extra Data", func(d *data.ExtraData) templ.Component { return tpl.ExtraData(d, headingLevel) }, dataList[0]).Render(ctx.Request().Context(), ctx.Response())
+			// return tpl.PageSingle[*data.ExtraData]("Extra Data", func(d *data.ExtraData) templ.Component { return tpl.ExtraData(d, headingLevel) }, dataList[0]).Render(ctx.Request().Context(), ctx.Response())
+			return tpl.Page[*data.ExtraData](
+				"Extra Data",
+				func(d ...*data.ExtraData) templ.Component {
+					return tpl.ExtraData(headingLevel, d...)
+				}, dataList...).Render(ctx.Request().Context(), ctx.Response())
 		}
 
 		return nil

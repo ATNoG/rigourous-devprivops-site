@@ -2,7 +2,13 @@ package templates
 
 import "github.com/Joao-Felisberto/devprivops-dashboard/data"
 
-templ ExtraData(extra *data.ExtraData, headingLevel int) {
+templ ExtraData(headingLevel int, extra ...*data.ExtraData) {
+    for _, d := range extra {
+        @ExtraDatum(d, headingLevel)
+    }
+}
+
+templ ExtraDatum(extra *data.ExtraData, headingLevel int) {
     switch headingLevel {
         case 1:
         <h1>{extra.Heading}</h1>
