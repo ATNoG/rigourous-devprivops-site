@@ -89,7 +89,7 @@ type Requirement struct {
 }
 
 type ExtraData struct {
-	Url         string                   `json:"url"`
+	Location    string                   `json:"location"`
 	Heading     string                   `json:"heading"`
 	Description string                   `json:"description"`
 	DataRowLine string                   `json:"data row line"`

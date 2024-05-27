@@ -132,7 +132,7 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 		})[0]
 
 		dataList := util.Filter(report.ExtraData, func(d *data.ExtraData) bool {
-			return d.Url == dataId
+			return d.Location == dataId
 		})
 
 		if len(dataList) != 0 {
