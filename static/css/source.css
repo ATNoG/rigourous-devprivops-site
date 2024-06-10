@@ -6,6 +6,10 @@
     * {
         print-color-adjust: exact;
     }
+
+    .no-print, .no-print * {
+        display: none !important;
+    }
 }
 
 h1 {

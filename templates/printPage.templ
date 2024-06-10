@@ -6,6 +6,8 @@ import "fmt"
 
 templ PrintPage(report *data.Report) {
     
+    <input class="link-btn no-print " type="button" value="Print Report" onClick="window.print()"/>
+    
     @Index(report)
 
     // @RegulationsPage(report, true)
