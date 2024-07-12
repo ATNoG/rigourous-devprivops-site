@@ -74,26 +74,34 @@ type RuleResult struct {
 	MappingMessage string                   `json:"mapping message"`
 	IsConsistency  bool                     `json:"is consistency"`
 	Results        []map[string]interface{} `json:"violations"`
+	ClearenceLvl   int                      `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
+	Groups         []string                 `json:"groups"`          // The groups allowed to see this in the visualizer
 }
 
 type UserStory struct {
 	UseCase      string        `json:"use case"`
 	IsMisuseCase bool          `json:"is misuse case"`
 	Requirements []Requirement `json:"requirements"`
+	ClearenceLvl int           `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
+	Groups       []string      `json:"groups"`          // The groups allowed to see this in the visualizer
 }
 
 type Requirement struct {
-	Title       string                   `json:"title"`
-	Description string                   `json:"description"`
-	Results     []map[string]interface{} `json:"results"`
+	Title        string                   `json:"title"`
+	Description  string                   `json:"description"`
+	Results      []map[string]interface{} `json:"results"`
+	ClearenceLvl int                      `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
+	Groups       []string                 `json:"groups"`          // The groups allowed to see this in the visualizer
 }
 
 type ExtraData struct {
-	Location    string                   `json:"location"`
-	Heading     string                   `json:"heading"`
-	Description string                   `json:"description"`
-	DataRowLine string                   `json:"data row line"`
-	Results     []map[string]interface{} `json:"results"`
+	Location     string                   `json:"location"`
+	Heading      string                   `json:"heading"`
+	Description  string                   `json:"description"`
+	DataRowLine  string                   `json:"data row line"`
+	Results      []map[string]interface{} `json:"results"`
+	ClearenceLvl int                      `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
+	Groups       []string                 `json:"groups"`          // The groups allowed to see this in the visualizer
 }
 
 // Represents the execution status of a tree node, either before or after the execution of its associated query
@@ -116,6 +124,8 @@ type AttackNode struct {
 	Children        []*AttackNode             `json:"children"`         // The node's pre-conditions
 	ExecutionStatus ExecutionStatus           `json:"execution status"` // The current execution stats of the node, may change when the tree is executed
 	ExecutionResult *[]map[string]interface{} `json:"execution result"` // The result of running the query, if it was run, else nil
+	ClearenceLvl    int                       `json:"clearence level"`  // The minimum hierarchical level required to see this in the visualizer
+	Groups          []string                  `json:"groups"`           // The groups allowed to see this in the visualizer
 }
 
 // Represents the whole attack/harm tree.
