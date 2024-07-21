@@ -38,6 +38,8 @@ func main() {
 	}
 	e.Static("site.manifest", "/static/site.manifest")
 
+	e.GET("/home", handlers.HomePage(store))
+	e.GET("/login", handlers.Login(store))
 	e.GET("/", handlers.ProjectsPage(store))
 	e.GET("/view/:proj/:cfg/:repId", handlers.RegulationsPage(store))
 	e.GET("/view/:proj/:cfg/:repId/:reg", handlers.PoliciesPage(store))

@@ -31,19 +31,19 @@ type Regulation struct {
 
 func (r *Regulation) UnmarshalJSON(data []byte) error {
 	var tmp struct {
-		A string        `json:"name"`
-		B []*RuleResult `json:"consistency results"`
-		C []*RuleResult `json:"policy results"`
+		Name   string        `json:"name"`
+		ConRes []*RuleResult `json:"consistency results"`
+		PolRes []*RuleResult `json:"policy results"`
 	}
 	err := json.Unmarshal(data, &tmp)
 	if err != nil {
 		return err
 	}
-	if !(len(tmp.B) == 0 && len(tmp.C) == 0) {
+	if !(len(tmp.ConRes) == 0 && len(tmp.PolRes) == 0) {
 		*r = Regulation{
-			tmp.A,
-			tmp.B,
-			tmp.C,
+			tmp.Name,
+			tmp.ConRes,
+			tmp.PolRes,
 		}
 	} else {
 
@@ -87,11 +87,11 @@ type UserStory struct {
 }
 
 type Requirement struct {
-	Title        string                   `json:"title"`
-	Description  string                   `json:"description"`
-	Results      []map[string]interface{} `json:"results"`
-	ClearenceLvl int                      `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
-	Groups       []string                 `json:"groups"`          // The groups allowed to see this in the visualizer
+	Title       string                   `json:"title"`
+	Description string                   `json:"description"`
+	Results     []map[string]interface{} `json:"results"`
+	// ClearenceLvl int                      `json:"clearence level"` // The minimum hierarchical level required to see this in the visualizer
+	// Groups       []string                 `json:"groups"`          // The groups allowed to see this in the visualizer
 }
 
 type ExtraData struct {

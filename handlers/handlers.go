@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strconv"
 
 	"github.com/Joao-Felisberto/devprivops-dashboard/data"
@@ -17,6 +18,46 @@ import (
 
 func Hello(c echo.Context) error {
 	return tpl.Hello("").Render(c.Request().Context(), c.Response())
+}
+
+func HomePage(store *data.Store) func(ctx echo.Context) error {
+	return func(ctx echo.Context) error {
+		return tpl.PageEmpty(
+			"Login",
+			func() templ.Component { return tpl.LoginForm() },
+		).Render(ctx.Request().Context(), ctx.Response())
+	}
+}
+
+func Login(store *data.Store) func(ctx echo.Context) error {
+	return func(c echo.Context) error {
+		levelCookie := new(http.Cookie)
+		levelCookie.Name = "level"
+		level := c.FormValue("level")
+		levelCookie.Value = level
+		levelCookie.SameSite = http.SameSiteStrictMode
+		c.SetCookie(levelCookie)
+
+		groupCookie := new(http.Cookie)
+		groupCookie.Name = "group"
+		group := c.FormValue("group")
+		groupCookie.Value = group
+		groupCookie.SameSite = http.SameSiteStrictMode
+		c.SetCookie(groupCookie)
+
+		/*
+			levelInt, err := strconv.Atoi(level)
+			if err != nil {
+				return err
+			}
+			store.SetAccess(levelInt, group)
+		*/
+
+		return tpl.PageEmpty(
+			"Login",
+			func() templ.Component { return tpl.LoginForm() },
+		).Render(c.Request().Context(), c.Response())
+	}
 }
 
 func ProjectsPage(store *data.Store) func(ctx echo.Context) error {
@@ -47,6 +88,21 @@ func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 		repId := ctx.Param("repId")
 		regName := ctx.Param("reg")
 
+		lvlCookie, err := ctx.Cookie("level")
+		if err != nil {
+			return err
+		}
+		lvl, err := strconv.Atoi(lvlCookie.Value)
+		if err != nil {
+			return err
+		}
+
+		groupCookie, err := ctx.Cookie("group")
+		if err != nil {
+			return err
+		}
+		group := groupCookie.Value
+
 		report := util.Filter(store.Data, func(r *data.Report) bool {
 			return r.Project == project &&
 				r.Config == config &&
@@ -67,7 +123,17 @@ func PoliciesPage(store *data.Store) func(ctx echo.Context) error {
 
 		fmt.Printf("%+v\n", regulation)
 
-		return tpl.PageSingle[*data.Regulation]("Report Page", func(r *data.Regulation) templ.Component { return tpl.PoliciesPage(project, config, repId, r) }, regulation).Render(ctx.Request().Context(), ctx.Response())
+		filtered := data.Regulation{
+			Name: regulation.Name,
+			ConsistencyResults: util.Filter(regulation.ConsistencyResults, func(r *data.RuleResult) bool {
+				return r.ClearenceLvl <= lvl && util.Contains(r.Groups, group)
+			}),
+			PolicyResults: util.Filter(regulation.PolicyResults, func(r *data.RuleResult) bool {
+				return r.ClearenceLvl <= lvl && util.Contains(r.Groups, group)
+			}),
+		}
+
+		return tpl.PageSingle[*data.Regulation]("Report Page", func(r *data.Regulation) templ.Component { return tpl.PoliciesPage(project, config, repId, r) }, &filtered).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 
@@ -77,18 +143,37 @@ func UserStoriesPage(store *data.Store) func(ctx echo.Context) error {
 		config := ctx.Param("cfg")
 		repId := ctx.Param("repId")
 
+		lvlCookie, err := ctx.Cookie("level")
+		if err != nil {
+			return err
+		}
+		lvl, err := strconv.Atoi(lvlCookie.Value)
+		if err != nil {
+			return err
+		}
+
+		groupCookie, err := ctx.Cookie("group")
+		if err != nil {
+			return err
+		}
+		group := groupCookie.Value
+
 		report := util.Filter(store.Data, func(r *data.Report) bool {
 			return r.Project == project &&
 				r.Config == config &&
 				r.GetId() == repId
 		})[0]
 
+		filtered := util.Filter(report.UserStories, func(us *data.UserStory) bool {
+			return us.ClearenceLvl <= lvl && util.Contains(us.Groups, group)
+		})
+
 		return tpl.Page[*data.UserStory](
 			"User Stories Page",
 			func(userStories ...*data.UserStory) templ.Component {
 				return tpl.RequirementsPage(project, config, repId, userStories...)
 			},
-			report.UserStories...).Render(ctx.Request().Context(), ctx.Response())
+			filtered...).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 
@@ -98,18 +183,37 @@ func AttackTreesPage(store *data.Store) func(ctx echo.Context) error {
 		config := ctx.Param("cfg")
 		repId := ctx.Param("repId")
 
+		lvlCookie, err := ctx.Cookie("level")
+		if err != nil {
+			return err
+		}
+		lvl, err := strconv.Atoi(lvlCookie.Value)
+		if err != nil {
+			return err
+		}
+
+		groupCookie, err := ctx.Cookie("group")
+		if err != nil {
+			return err
+		}
+		group := groupCookie.Value
+
 		report := util.Filter(store.Data, func(r *data.Report) bool {
 			return r.Project == project &&
 				r.Config == config &&
 				r.GetId() == repId
 		})[0]
 
+		filtered := util.Filter(report.AttackTrees, func(at *data.AttackTree) bool {
+			return at.Root.ClearenceLvl <= lvl && util.Contains(at.Root.Groups, group)
+		})
+
 		return tpl.Page[*data.AttackTree](
 			"Attack and Harm Tree Page",
 			func(trees ...*data.AttackTree) templ.Component {
 				return tpl.AttackTreePage(trees...)
 			},
-			report.AttackTrees...).Render(ctx.Request().Context(), ctx.Response())
+			filtered...).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 
@@ -125,6 +229,21 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 			return err
 		}
 
+		lvlCookie, err := ctx.Cookie("level")
+		if err != nil {
+			return err
+		}
+		lvl, err := strconv.Atoi(lvlCookie.Value)
+		if err != nil {
+			return err
+		}
+
+		groupCookie, err := ctx.Cookie("group")
+		if err != nil {
+			return err
+		}
+		group := groupCookie.Value
+
 		report := util.Filter(store.Data, func(r *data.Report) bool {
 			return r.Project == project &&
 				r.Config == config &&
@@ -132,7 +251,7 @@ func ExtraData(store *data.Store) func(ctx echo.Context) error {
 		})[0]
 
 		dataList := util.Filter(report.ExtraData, func(d *data.ExtraData) bool {
-			return d.Location == dataId
+			return d.Location == dataId && d.ClearenceLvl > lvl && util.Contains(d.Groups, group)
 		})
 
 		if len(dataList) != 0 {
@@ -154,13 +273,59 @@ func PrintPage(store *data.Store) func(ctx echo.Context) error {
 		config := ctx.Param("cfg")
 		repId := ctx.Param("repId")
 
+		lvlCookie, err := ctx.Cookie("level")
+		if err != nil {
+			return err
+		}
+		lvl, err := strconv.Atoi(lvlCookie.Value)
+		if err != nil {
+			return err
+		}
+
+		groupCookie, err := ctx.Cookie("group")
+		if err != nil {
+			return err
+		}
+		group := groupCookie.Value
+
+		fmt.Printf("User: %s[%d]\n", group, lvl)
+
 		report := util.Filter(store.Data, func(r *data.Report) bool {
 			return r.Project == project &&
 				r.Config == config &&
 				r.GetId() == repId
 		})[0]
 
-		return tpl.PageSingle[*data.Report]("Print Page", tpl.PrintPage, report).Render(ctx.Request().Context(), ctx.Response())
+		finalReport := data.Report{
+			Branch:  report.Branch,
+			Time:    report.Time,
+			Config:  report.Config,
+			Project: report.Project,
+			Regulations: util.Map(report.Regulations, func(r *data.Regulation) *data.Regulation {
+				return &data.Regulation{
+					Name: r.Name,
+					ConsistencyResults: util.Filter(r.ConsistencyResults, func(r *data.RuleResult) bool {
+						fmt.Printf("con res for lvl %d and %+v\n", r.ClearenceLvl, r.Groups)
+						return r.ClearenceLvl <= lvl && util.Contains(r.Groups, group)
+					}),
+					PolicyResults: util.Filter(r.PolicyResults, func(r *data.RuleResult) bool {
+						fmt.Printf("pol res for lvl %d and %+v\n", r.ClearenceLvl, r.Groups)
+						return r.ClearenceLvl <= lvl && util.Contains(r.Groups, group)
+					}),
+				}
+			}),
+			UserStories: util.Filter(report.UserStories, func(us *data.UserStory) bool {
+				return us.ClearenceLvl <= lvl && util.Contains(us.Groups, group)
+			}),
+			ExtraData: util.Filter(report.ExtraData, func(d *data.ExtraData) bool {
+				return d.ClearenceLvl > lvl && util.Contains(d.Groups, group)
+			}),
+			AttackTrees: util.Filter(report.AttackTrees, func(at *data.AttackTree) bool {
+				return at.Root.ClearenceLvl <= lvl && util.Contains(at.Root.Groups, group)
+			}),
+		}
+
+		return tpl.PageSingle[*data.Report]("Print Page", tpl.PrintPage, &finalReport).Render(ctx.Request().Context(), ctx.Response())
 	}
 }
 

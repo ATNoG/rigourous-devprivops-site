@@ -24,6 +24,13 @@ func FromFile(file string) (*Store, error) {
 	return payload, nil
 }
 
+/*
+func (ds *Store) SetAccess(level int, group string) {
+	ds.Level = level
+	ds.Group = group
+}
+*/
+
 func (s *Store) ToFile(file string) error {
 	data, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
